@@ -22,6 +22,8 @@ module arbiter_top #(
 
     logic [$clog2(MAX_HOLD+1)-1:0] hold_cnt;
 
+    logic winner_found;
+
     age_counter_block #(
         .N(N),
         .AGE_THRESHOLD(AGE_THRESHOLD)
@@ -40,13 +42,15 @@ module arbiter_top #(
         .req(req),
         .last_winner(winner_idx_reg),
         .aging_flags(aging_flags),
-        .next_winner(winner_idx_next)
+        .next_winner(winner_idx_next),
+        .valid(winner_found)
     );
 
     always_ff @(posedge clk) begin
     if (~rst_n) begin
         winner_idx_reg <= '0;
         hold_cnt <= '0;
+        gnt_reg <= '0;
     end else if (gnt_active) begin
         if (hold_cnt == MAX_HOLD - 1) begin
             hold_cnt <= '0;
@@ -56,8 +60,10 @@ module arbiter_top #(
         end
     end else begin
         hold_cnt <= '0;
-        gnt_reg <= (1 << winner_idx_next);
-        winner_idx_reg <= winner_idx_next;
+        if (winner_found) begin
+            gnt_reg <= (1 << winner_idx_next);
+            winner_idx_reg <= winner_idx_next;
+        end
     end
 end
     
