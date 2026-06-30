@@ -9,7 +9,7 @@ module age_counter_block #(
     
     output logic [N-1:0] aging_flags
 );
-    logic [$clog2(AGE_THRESHOLD)-1:0] age_counters [N];
+    logic [$clog2(AGE_THRESHOLD+1)-1:0] age_counters [N];
 
     always_ff @(posedge clk) begin
         if (~rst_n) begin
@@ -20,8 +20,9 @@ module age_counter_block #(
                 if (gnt[i]) begin
                     age_counters[i] <= 0;
                 end else if (req[i]) begin
-                    // Req wants BUS, not granted
-                    age_counters[i] <= age_counters[i] + 1;
+                    if (age_counters[i] < AGE_THRESHOLD)begin
+                        age_counters[i] <= age_counters[i] + 1;
+                    end
                 end else if (~req[i]) begin
                     // Req is not requesting 
                     age_counters[i] <= 0;
