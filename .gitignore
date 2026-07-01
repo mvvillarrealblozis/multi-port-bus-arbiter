@@ -1,0 +1,18 @@
+# Simulation outputs
+*.vcd
+*.lxt
+*.fst
+*.dump
+
+# Icarus Verilog compiled output
+*.vvp
+*.out
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Waveform viewer configs
+*.gtkw
