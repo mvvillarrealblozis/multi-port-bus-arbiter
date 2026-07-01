@@ -21,15 +21,13 @@ module priority_resolver #(
                 if (aging_flags[i] && ~winner_found) begin
                     winner_found = 1;
                     next_winner = i;
-                    break;
                 end
             end
             if (~winner_found) begin
                 for (int i = 0; i < N; i++) begin
-                    if (req[i]) begin
+                    if (req[i] && ~winner_found) begin
                         winner_found = 1;
                         next_winner = i;
-                        break;
                     end
                 end
             end 
@@ -42,10 +40,9 @@ module priority_resolver #(
             for (int i = 0; i < N; i++) begin
                 // Rotate scan start to last_winner+1, wrapping around with modulo N
                 idx = (last_winner + 1 + i) % N;
-                if (req[idx]) begin
+                if (req[idx] && ~winner_found) begin
                     winner_found = 1;
                     next_winner = idx;
-                    break;
                 end
             end
         end

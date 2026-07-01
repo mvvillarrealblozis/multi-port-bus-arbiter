@@ -47,25 +47,31 @@ module arbiter_top #(
     );
 
     always_ff @(posedge clk) begin
-    if (~rst_n) begin
-        winner_idx_reg <= '0;
-        hold_cnt <= '0;
-        gnt_reg <= '0;
-    end else if (gnt_active) begin
-        if (hold_cnt == MAX_HOLD - 1) begin
+        if (~rst_n) begin
+            winner_idx_reg <= N - 1;
             hold_cnt <= '0;
             gnt_reg <= '0;
+        end else if (gnt_active) begin
+            // check for req deassertion
+            if (!(gnt_reg & req)) begin
+                gnt_reg <= '0;
+                hold_cnt <= '0;
+            end else if (hold_cnt == MAX_HOLD - 1) begin
+                hold_cnt <= '0;
+                gnt_reg <= '0;
+            end else begin
+                hold_cnt <= hold_cnt + 1;
+            end
+
+        
         end else begin
-            hold_cnt <= hold_cnt + 1;
-        end
-    end else begin
-        hold_cnt <= '0;
-        if (winner_found) begin
-            gnt_reg <= (1 << winner_idx_next);
-            winner_idx_reg <= winner_idx_next;
+            hold_cnt <= '0;
+            if (winner_found) begin
+                gnt_reg <= (1 << winner_idx_next);
+                winner_idx_reg <= winner_idx_next;
+            end
         end
     end
-end
     
     assign gnt_active = |gnt;
     assign gnt = gnt_reg;

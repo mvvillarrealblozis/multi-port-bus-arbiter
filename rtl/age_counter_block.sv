@@ -13,7 +13,9 @@ module age_counter_block #(
 
     always_ff @(posedge clk) begin
         if (~rst_n) begin
-            age_counters <= '0;
+            for (int i = 0; i < N; i++) begin
+                age_counters[i] <= '0;
+            end
         end else begin 
             for (int i = 0; i < N; i++) begin
                 // Curr req has BUS 
