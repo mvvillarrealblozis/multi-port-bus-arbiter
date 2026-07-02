@@ -1,14 +1,27 @@
+/*
+arbiter_if.sv
+arbiter_seq_item.sv
+arbiter_sequencer.sv
+arbiter_driver.sv
+arbiter_monitor.sv
+arbiter_scoreboard.sv
+arbiter_agent.sv
+arbiter_env.sv
+arbiter_test.sv
+arbiter_tb_top.sv
+arbiter_pkg.sv
+*/
 module arbiter_top #(
-    parameter int N             = 4,
-    parameter int MAX_HOLD      = 8,
+    parameter int N = 4,
+    parameter int MAX_HOLD = 8,
     parameter int AGE_THRESHOLD = 4
 )(
-    input  logic            clk,
-    input  logic            rst_n,
-    input  logic [N-1:0]    req,
-    input  logic            scheme,
-    output logic [N-1:0]    gnt,
-    output logic            gnt_valid
+    input  logic clk,
+    input  logic rst_n,
+    input  logic [N-1:0] req,
+    input  logic scheme,
+    output logic [N-1:0] gnt,
+    output logic gnt_valid
 );
     logic [N-1:0] aging_flags;
 
