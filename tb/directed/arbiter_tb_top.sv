@@ -20,11 +20,9 @@ module arbiter_tb_top;
     parameter int AGE_THRESHOLD = 4;
 
     logic clk;
-    logic rst_n;
 
     arbiter_if #(.N(N)) vif_inst(
-        .clk(clk),
-        .rst_n((rst_n))
+        .clk(clk)
     );
 
     arbiter_top #(

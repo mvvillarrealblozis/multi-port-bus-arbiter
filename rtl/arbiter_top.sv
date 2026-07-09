@@ -1,93 +1,59 @@
-/*
-arbiter_if.sv
-arbiter_seq_item.sv
-arbiter_sequencer.sv
-arbiter_driver.sv
-arbiter_monitor.sv
-arbiter_scoreboard.sv
-arbiter_agent.sv
-arbiter_env.sv
-arbiter_test.sv
-arbiter_tb_top.sv
-arbiter_pkg.sv
-*/
-module arbiter_top #(
-    parameter int N = 4,
-    parameter int MAX_HOLD = 8,
-    parameter int AGE_THRESHOLD = 4
-)(
-    input  logic clk,
-    input  logic rst_n,
-    input  logic [N-1:0] req,
-    input  logic scheme,
-    output logic [N-1:0] gnt,
-    output logic gnt_valid
-);
-    logic [N-1:0] aging_flags;
+`timescale 1ns/1ps
+import uvm_pkg::*;
 
-    logic [N-1:0] gnt_reg;
+`include "uvm_macros.svh"
 
-    logic [$clog2(N)-1:0] winner_idx_next;
-    
-    logic [$clog2(N)-1:0] winner_idx_reg;
-    
-    logic gnt_active;
+`include "arbiter_if.sv"
+`include "arbiter_seq_item.sv"
+`include "arbiter_sequencer.sv"
+`include "arbiter_driver.sv"
+`include "arbiter_monitor.sv"
+`include "arbiter_scoreboard.sv"
+`include "arbiter_agent.sv"
+`include "arbiter_env.sv"
+`include "arbiter_rand_seq.sv"
+`include "arbiter_test.sv"
 
-    logic [$clog2(MAX_HOLD+1)-1:0] hold_cnt;
+module arbiter_tb_top;
+    parameter int N = 4;
+    parameter int MAX_HOLD = 8;
+    parameter int AGE_THRESHOLD = 4;
 
-    logic winner_found;
+    logic clk;
 
-    age_counter_block #(
+    arbiter_if #(.N(N)) vif_inst(
+        .clk(clk)
+    );
+
+    arbiter_top #(
         .N(N),
+        .MAX_HOLD(MAX_HOLD),
         .AGE_THRESHOLD(AGE_THRESHOLD)
-    ) u_age_counter_block (
-        .clk(clk),
-        .rst_n(rst_n),
-        .req(req),
-        .gnt(gnt_reg),
-        .aging_flags(aging_flags)
+    ) dut (
+        .clk            (vif_inst.clk),
+        .rst_n          (vif_inst.rst_n),
+        .req            (vif_inst.req),
+        .scheme         (vif_inst.scheme),
+        .gnt            (vif_inst.gnt),
+        .gnt_valid      (vif_inst.gnt_valid)
     );
 
-    priority_resolver #(
-        .N(N)
-    ) u_priority_resolver (
-        .scheme(scheme),
-        .req(req),
-        .last_winner(winner_idx_reg),
-        .aging_flags(aging_flags),
-        .next_winner(winner_idx_next),
-        .valid(winner_found)
-    );
+    initial begin
+        $dumpfile("dump.vcd");
+        $dumpvars(0, arbiter_tb_top);
+	end
 
-    always_ff @(posedge clk) begin
-        if (~rst_n) begin
-            winner_idx_reg <= N - 1;
-            hold_cnt <= '0;
-            gnt_reg <= '0;
-        end else if (gnt_active) begin
-            // check for req deassertion
-            if (!(gnt_reg & req)) begin
-                gnt_reg <= '0;
-                hold_cnt <= '0;
-            end else if (hold_cnt == MAX_HOLD - 1) begin
-                hold_cnt <= '0;
-                gnt_reg <= '0;
-            end else begin
-                hold_cnt <= hold_cnt + 1;
-            end
+    initial clk = 0;
+    always #5 clk = ~clk;
 
-        
-        end else begin
-            hold_cnt <= '0;
-            if (winner_found) begin
-                gnt_reg <= (1 << winner_idx_next);
-                winner_idx_reg <= winner_idx_next;
-            end
-        end
+    initial begin
+        vif_inst.rst_n = 0;
+        #20;
+        vif_inst.rst_n = 1;
     end
-    
-    assign gnt_active = |gnt;
-    assign gnt = gnt_reg;
-    assign gnt_valid = gnt_active;
 
+    initial begin
+        uvm_config_db #(virtual arbiter_if)::set(null, "*", "vif", vif_inst);
+        run_test("arbiter_base_test");
+    end
 endmodule

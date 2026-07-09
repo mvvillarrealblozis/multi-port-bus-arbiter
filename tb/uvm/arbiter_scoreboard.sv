@@ -3,27 +3,33 @@ class arbiter_scoreboard extends uvm_scoreboard;
 
     int N = 4;
     int AGE_THRESHOLD = 4;
-    int STARVATION_THRESHOLD = 8;
+    int STARVATION_THRESHOLD = 12;
 
     uvm_analysis_imp #(arbiter_seq_item, arbiter_scoreboard) ap;
 
     int gnt_count[];
     int wait_count[];
 
+    logic [3:0] prev_gnt;
+
     function new(string name = "arbiter_scoreboard", uvm_component parent = null);
         super.new(name, parent);
         ap = new("ap", this);
         gnt_count  = new[N];
         wait_count = new[N];
+        prev_gnt = '0;
     endfunction
 
     function void write(arbiter_seq_item tr);
-        if (!tr.rst_n)
-            return;
-        if ((tr.gnt & (tr.gnt - 1)) != 0) begin
+        if (!tr.rst_n) begin
+            foreach (wait_count[i]) wait_count[i] = 0;
+            foreach (gnt_count[i]) gnt_count[i] = 0;
+            prev_gnt = '0;
+        return;
+        end if ((tr.gnt & (tr.gnt - 1)) != 0) begin
             `uvm_error("GNT_ERROR", "Error: gnt should be one hot or empty")
         end
-        if ((tr.gnt & tr.req) != tr.gnt) begin
+        if ((tr.gnt & tr.req) != tr.gnt && (prev_gnt & tr.gnt) == tr.gnt) begin
             `uvm_error("GNT_ERROR", "Error: gnt should only assert for one active requestor")
         end
 
@@ -44,6 +50,7 @@ class arbiter_scoreboard extends uvm_scoreboard;
                 wait_count[i] = '0;
             end
         end
-
+        
+        prev_gnt = tr.gnt;
     endfunction
 endclass

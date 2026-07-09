@@ -16,11 +16,11 @@ class arbiter_monitor extends uvm_monitor;
     endfunction
 
     task run_phase(uvm_phase phase);
+        arbiter_seq_item tr;
         forever begin
             @(posedge vif.clk);
             #1;
-            arbiter_seq_item tr;
-            tr = arbiter_seq_item::type_id::create("tr");
+            tr = arbiter_seq_item#()::type_id::create("tr");
             tr.req = vif.req;
             tr.scheme = vif.scheme;
             tr.rst_n = vif.rst_n;
