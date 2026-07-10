@@ -153,4 +153,4 @@ Bugs caught during verification:
 
 ## Background
 
-This project is part of an ASIC digital design portfolio targeting roles in RTL design and digital verification. It demonstrates core arbitration design discipline including fixed-priority and round-robin scheduling, starvation prevention via aging counters, parameterizable RTL, and a self-checking UVM 1.2 verification environment with constrained-random stimulus — skills directly applicable to industry ASIC flows at companies working on GPU interconnect, SoC fabric design, and high-performance memory subsystems.
+This project is part of an ASIC digital design portfolio targeting roles in RTL design and digital verification. It demonstrates core arbitration design discipline including fixed-priority and round-robin scheduling, starvation prevention via aging counters, parameterizable RTL, and a self-checking UVM 1.2 verification environment with constrained-random stimulus, skills directly applicable to industry ASIC flows at companies working on GPU interconnect, SoC fabric design, and high-performance memory subsystems.
