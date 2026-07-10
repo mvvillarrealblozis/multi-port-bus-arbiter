@@ -33,13 +33,13 @@ Tracks how long each requestor has been waiting without a grant. Counters increm
 
 ```
                     ┌─────────────────────────────────────┐
-                    │            arbiter_top               │
-                    │                                      │
+                    │            arbiter_top              │
+                    │                                     │
   req[N-1:0] ──────►│  ┌──────────────────────────────┐   │
   scheme     ──────►│  │     priority_resolver        │   │──► gnt[N-1:0]
   clk        ──────►│  │  (combinational)             │   │──► gnt_valid
   rst_n      ──────►│  └──────────────────────────────┘   │
-                    │                                      │
+                    │                                     │
                     │  ┌──────────────────────────────┐   │
                     │  │     age_counter_block        │   │
                     │  │  (sequential)                │   │
